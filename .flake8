@@ -1,0 +1,27 @@
+[flake8]
+select = 
+    # B: flake8-bugbear
+    B,
+    # BLK: Black
+    BLK,
+    # C: McCabe complexity
+    C,
+    # E: pycodestyle / PEP8
+    E,
+    # F: pyflakes
+    F,
+    # I: flake8-import-order
+    I,
+    # W: pycodestyle / PEP8
+    W
+ignore = 
+    # E203: Whitespace before ':' (used for Black)
+    E203,
+    # W503: Line break occurred before a binary operator (used for Black)
+    W503
+max-line-length = 
+    # Using lw of 88 for Black
+    88
+max-complexity = 
+    # Using McCabe complexity checker
+    10
