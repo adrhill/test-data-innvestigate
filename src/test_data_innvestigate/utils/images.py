@@ -1,6 +1,9 @@
-import matplotlib.pyplot as plt
-import numpy as np
 import PIL.Image
+
+import matplotlib.pyplot as plt
+
+import numpy as np
+
 
 def load_image(path, size):
     ret = PIL.Image.open(path)
@@ -12,14 +15,16 @@ def load_image(path, size):
         ret = np.repeat(ret, 3, axis=-1)
     return ret
 
+
 def show_image(image):
     fig, ax = plt.subplots(figsize=plt.figaspect(image))
     fig.subplots_adjust(0, 0, 1, 1)
-    ax.imshow(image, aspect='equal')
+    ax.imshow(image, aspect="equal")
     return fig, ax
+
 
 def show_heatmap(image):
     fig, ax = plt.subplots(figsize=plt.figaspect(image))
     fig.subplots_adjust(0, 0, 1, 1)
-    ax.imshow(image, cmap="seismic", clim=(-1, 1), aspect='equal')
+    ax.imshow(image, cmap="seismic", clim=(-1, 1), aspect="equal")
     return fig, ax

@@ -1,28 +1,28 @@
 import os
-import matplotlib.pyplot as plt
-import numpy as np
-import PIL.Image
-
-
 
 import innvestigate
 import innvestigate.utils
+
 import keras.applications.vgg16 as vgg16
 
+import matplotlib.pyplot as plt
 
-if __name__ == "__main__":
-    # Load an image.
-    # Need to download examples images first.
-    # See script in images directory.
+import numpy as np
 
-    base_dir = os.path.dirname(__file__)
-    image = load_image(
-        os.path.join(base_dir, "images", "ILSVRC2012_val_00011670.JPEG"), 224)
+from ..utils.images import show_heatmap, show_image
+
+base_dir = os.path.dirname(__file__)
+
+print(base_dir)
+
+
+def run(image, show_plot=False):
+    """Load an image and run it through VGG16, applying LRP."""
 
     # Code snippet.
-    fig, ax = show_image(image/255)
-    plt.show()
-    plt.savefig("readme_example_input.png")
+    fig, ax = show_image(image / 255)
+    if show_plot is True:
+        plt.show()
 
     # Get model
     model, preprocess = vgg16.VGG16(), vgg16.preprocess_input
@@ -43,5 +43,5 @@ if __name__ == "__main__":
 
     # Plot
     fig, ax = show_heatmap(a[0])
-    plt.show()
-    plt.savefig("readme_example_analysis.png")
+    if show_plot is True:
+        plt.show()
