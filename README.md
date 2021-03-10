@@ -11,14 +11,15 @@ The generated data can be found in `/data` and is split in two folders:
 **New LRP implementations should match the test datasets within a pixel-wise tolerance of `1e-5`!**
 
 ## Installation 
-**This package doesn't need to be installed, as the generated datasets are already part of the repo.**
+**This package doesn't need to be installed, as the generated data are already part of the repo.**
 
-However, to allow reproducible generation of the data, the environment specified in `environment.yml` can be installed using:
+However, to allow reproducible generation of the data, you can install the package with [Poetry](https://python-poetry.org/). Make sure you have a local installation of Python 3.6 (e.g. with pyenv) and run:
 ```bash
-conda env create -f environment.yml
+poetry install 
+poetry run test-data-innvestigate
 ```
 
-##### Why these specific package versions?
+### Why these specific package versions?
 The versions are set according to the [iNNvestigate installation instructions](https://github.com/albermax/innvestigate#installation) for [version `1.0.9`](https://github.com/albermax/innvestigate/commit/b1084b2b5c59434060c78bb163b9bf006f5bbeb8), which is tested using:
 * Python `3.6`
 * TensorFlow `1.12`
@@ -26,4 +27,3 @@ The versions are set according to the [iNNvestigate installation instructions](h
 
 Additionally:
 * using NumPy `1.16` to avoid [warnings with Tensorflow `1.12`](https://github.com/tensorflow/tensorflow/issues/31249) 
-* using `nomkl` for macOS compatibility
