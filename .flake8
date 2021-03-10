@@ -1,17 +1,27 @@
 [flake8]
 select = 
+    # A: flake8-builtins
+    A,
     # B: flake8-bugbear
     B,
+    # B9: flake8-bugbear
+    B9,
     # BLK: Black
     BLK,
     # C: McCabe complexity
     C,
+    # D: flake8-docstrings 
+    #D,
+    # DAR: darglint for docstrings 
+    #DAR,
     # E: pycodestyle / PEP8
     E,
     # F: pyflakes
     F,
     # I: flake8-import-order
     I,
+    # N8: pep8-naming
+    N,
     # W: pycodestyle / PEP8
     W
 ignore = 
