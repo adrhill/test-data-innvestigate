@@ -28,3 +28,11 @@ def show_heatmap(image):
     fig.subplots_adjust(0, 0, 1, 1)
     ax.imshow(image, cmap="seismic", clim=(-1, 1), aspect="equal")
     return fig, ax
+
+
+def aggeregate_attribution(a):
+    # Aggregate along color channels
+    a = a.sum(axis=np.argmax(np.asarray(a.shape) == 3))
+    # Normalize to [-1, 1]
+    a /= np.max(np.abs(a))
+    return a
