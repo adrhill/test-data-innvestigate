@@ -29,9 +29,7 @@ ignore =
     E203,
     # W503: Line break occurred before a binary operator (used for Black)
     W503
-max-line-length = 
-    # Using lw of 88 for Black
-    88
-max-complexity = 
-    # Using McCabe complexity checker
-    10
+max-line-length = 88 # for use with Black   
+max-complexity = 10 # for McCabe complexity checker
+exclude =
+    data,
