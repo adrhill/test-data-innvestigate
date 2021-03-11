@@ -37,6 +37,9 @@ flake8-import-order = "^0.18.1"
 pep8-naming = "^0.11.1"
 pytest = "^6.2.2"
 
+[tool.pytest.ini_options]
+addopts = "-W ignore::DeprecationWarning" # for TF 1.12 warnings  
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
