@@ -1406,7 +1406,7 @@ testing = ["pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake
 [metadata]
 lock-version = "1.1"
 python-versions = "3.6.*"
-content-hash = "a12d9777cf3747f9395fef97660877faf5a105cbf16190cf63542ead54e72b44"
+content-hash = "b9567e2e9dfbead5330131117c63fda7283063f66260ccdc5cef32bb2de8dda1"
 
 [metadata.files]
 absl-py = [
