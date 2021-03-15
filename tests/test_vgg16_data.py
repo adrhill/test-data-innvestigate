@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-import numpy as np
+import h5py
 
 from test_data_innvestigate.generate import vgg16
 
@@ -12,11 +12,9 @@ vgg16.generate()
 
 # Load data
 ROOT_DIR = os.path.abspath(os.curdir)
-path = os.path.join(ROOT_DIR, "data", "models", "vgg16.npz")
-data = np.load(path)
-
-# Get shape of attributions on individual layers
-shapes_data = [np.shape(data[file]) for file in data.files]
+path = os.path.join(ROOT_DIR, "data", "models", "vgg16.hdf5")
+data = h5py.File(path, "r")
+rels = data["layerwise_relevances"]
 
 # Define expected shapes for comparison
 shapes_vgg16 = [
@@ -42,9 +40,12 @@ shapes_vgg16 = [
     (1, 25088),
     (1, 4096),
     (1, 4096),
-    (1, 1000),
-    (1, 1000),  # TODO: why this one?
+    (1, 1000)
 ]
+
+# Get shape of attributions on individual layers
+n_layers = len(shapes_vgg16)
+shapes_data = [rels.get(str(l)).shape for l in range(n_layers)]
 
 
 @pytest.mark.parametrize("shape_data, shape_expected", zip(shapes_data, shapes_vgg16))

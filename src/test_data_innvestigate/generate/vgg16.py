@@ -1,7 +1,8 @@
 import os
 
 import innvestigate
-import innvestigate.utils
+
+import h5py
 
 import keras.applications.vgg16 as vgg16
 
@@ -38,19 +39,26 @@ def generate():
 
     # Add batch axis and preprocess
     x = preprocess(image[None])
+    
     # Apply analyzer w.r.t. maximum activated output-neuron
     a = analyzer.analyze(x)
 
     # Obtain layerwise tensors, stripping first
-    reversed_tensors = analyzer._reversed_tensors[1:]
-
+    relevances = analyzer._reversed_tensors#[1:]
     # unzip reverse tensors to strip indices
-    tensor_indices, reversed_tensors = zip(*reversed_tensors)
+    indices, relevances = zip(*relevances)
 
     assert np.allclose(
-        reversed_tensors[0], a
-    ), "_reversed_tensors output differs from attribution"
+        relevances[1], a
+    ), "_reversed_tensors output differs from final attribution"
 
     # Save data
-    data_path = os.path.join(ROOT_DIR, "data", "models", "vgg16")
-    np.savez_compressed(data_path, *reversed_tensors)
+    data_path = os.path.join(ROOT_DIR, "data", "models", "vgg16.hdf5")
+
+    with h5py.File(data_path, "w") as f:
+        f.create_dataset("input_data", data=x)
+        f.attrs['model_name'] = "vgg16"
+
+        rs = f.create_group("layerwise_relevances")
+        for idx, rel in zip(indices, relevances):
+            rs.create_dataset(str(idx[0]), data=rel)
