@@ -13,6 +13,7 @@ keywords = ["LRP", "XAI", "testing"]
 # Versions specified for iNNvestigate 1.0.9 test
 python = "3.6.*"
 innvestigate = "1.0.9"
+Keras = "2.2.4"
 tensorflow = "1.12.*"
 
 # Ensure compatibility of numpy with TF 1.12
