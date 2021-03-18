@@ -14,7 +14,7 @@ vgg16.generate()
 ROOT_DIR = os.path.abspath(os.curdir)
 path = os.path.join(ROOT_DIR, "data", "models", "vgg16.hdf5")
 data = h5py.File(path, "r")
-rels = data["layerwise_relevances"]
+rels = data["layerwise_relevances"]["LRPZ"]
 
 # Define expected shapes for comparison
 shapes_vgg16 = [
@@ -40,7 +40,7 @@ shapes_vgg16 = [
     (1, 25088),
     (1, 4096),
     (1, 4096),
-    (1, 1000)
+    (1, 1000),
 ]
 
 # Get shape of attributions on individual layers
