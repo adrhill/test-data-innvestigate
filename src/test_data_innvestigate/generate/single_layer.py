@@ -5,6 +5,7 @@ import h5py
 import innvestigate
 import innvestigate.analyzer.relevance_based.relevance_rule as rrule
 import innvestigate.utils.keras.checks as iutils
+from innvestigate.analyzer.relevance_based.relevance_analyzer import LRP
 
 import keras
 import keras.backend as K
@@ -27,59 +28,56 @@ INPUT_SHAPE = (10, 10, 3)
 BATCH_SIZE = 1
 
 def get_single_layer_model(layer):
-    model = keras.Sequential()
-    model.add(layer)
+    x = keras.layers.Input(shape=INPUT_SHAPE)
+    y = layer(x)
 
+    model = keras.Model(x, y)
     weights = model.layers[0].get_weights()
-    
+  
     return model, weights
-
-# def get_single_layer_model(layer):
-#     x = keras.layers.Input(shape=INPUT_SHAPE)
-#     y = layer(x)
-#
-#     model = keras.Model(x, y)
-#     weights = model.layers[0].get_weights()
-#   
-#     return model, weights
 
 def run_rule(layer, layer_name: str, xs: np.ndarray):
     print("Generating data on layer {}".format(layer_name))
-    K.clear_session()
+    # K.clear_session()
 
     # Get model
     model, weights = get_single_layer_model(layer)
     print(model.input_shape)
     
     # Get prediction
-    Xs = K.constant(xs)
-    Ys = model.predict(Xs, steps=BATCH_SIZE)
+    ys = model.predict(xs, steps=BATCH_SIZE)
     uniform = np.ones_like(ys)
-    print(np.shape(Ys))
-    print(type(Ys))
 
+    print(np.shape(ys))
+    print(type(ys))
+    
     # Create hdf5 data
-    data_path = os.path.join(ROOT_DIR, "data", "rule", layer_name + ".hdf5")
+    data_path = os.path.join(ROOT_DIR, "data", "layer", layer_name + ".hdf5")
 
     with h5py.File(data_path, "w") as f:
         f.attrs["layer_name"] = layer_name
         f.create_dataset("input", data=xs)
-        f.create_dataset("output", data=ys.eval())
+        f.create_dataset("output", data=ys)
         rels = f.create_group("relevances")
     
         # Apply all rules on ys and uniform output
         for rule_name in LRP_RULES:
-            print("\t... using {}".format(rule_name))
-
             # state and reverse_state are required to construct and apply LRP-rules respectively
             # TODO: check if these can be left to `None`
             state = None
             reverse_state = None
 
-            # Get rule matching name from iNNvestigate relevance_rules
+            # Create ReverseAnalyzerBase using rule
             Rule = getattr(rrule, rule_name) # get class of rule
-            r = rels.create_group(rule_name)
             rule = Rule(layer, state)
+            print("\t... using {}: {}".format(rule_name, rule))
+            analyzer = LRP(model, rule=[rule], input_layer_rule=rule)
+
+            # Analyze output 
+            a = analyzer.analyze(xs)
+
+            # Get rule matching name from iNNvestigate relevance_rules
+            r = rels.create_group(rule_name)
 
             # Calculate relevances for output Rs=ys of layers
             rel_out = rule.apply(xs, ys, ys, reverse_state)
@@ -92,7 +90,7 @@ def run_rule(layer, layer_name: str, xs: np.ndarray):
 def generate():
     """Create single layer model and run LRP"""
 
-    xs = np.random.rand(BATCH_SIZE, *INPUT_SHAPE) # prepend "batch size" of 1
+    xs = np.random.rand(BATCH_SIZE, *INPUT_SHAPE)
 
     # Create layers that are evaluated
     kernel_size = (3, 3)
@@ -110,5 +108,4 @@ def generate():
     }
 
     for layer_name, layer in layers_2D.items():
-        # run_rule(layer, layer_name, xs)
-        run_analyzer(layer, layer_name, xs)
+        run_rule(layer, layer_name, xs)
