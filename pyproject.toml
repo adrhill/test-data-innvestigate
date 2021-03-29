@@ -39,7 +39,10 @@ pep8-naming = "^0.11.1"
 pytest = "^6.2.2"
 
 [tool.pytest.ini_options]
-addopts = "-W ignore::DeprecationWarning" # for TF 1.12 warnings  
+filterwarnings = [
+    "ignore::FutureWarning:tensorflow",
+    "ignore::DeprecationWarning:tensorflow",
+]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

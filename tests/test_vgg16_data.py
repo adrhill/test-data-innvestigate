@@ -7,14 +7,11 @@ import h5py
 from test_data_innvestigate.generate import vgg16
 
 
-# Generate data
-vgg16.generate()
-
 # Load data
 ROOT_DIR = os.path.abspath(os.curdir)
-path = os.path.join(ROOT_DIR, "data", "models", "vgg16.hdf5")
+path = os.path.join(ROOT_DIR, "data", "vgg16", "LRPSequentialPresetA.hdf5")
 data = h5py.File(path, "r")
-rels = data["layerwise_relevances"]["LRPZ"]
+rels = data["layerwise_relevances"]
 
 # Define expected shapes for comparison
 shapes_vgg16 = [
