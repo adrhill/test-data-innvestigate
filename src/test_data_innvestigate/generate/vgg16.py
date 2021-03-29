@@ -1,38 +1,25 @@
 import os
 
-import innvestigate
-import innvestigate.analyzer.relevance_based.relevance_analyzer as ranalyzer
-
 import h5py
 
-import keras.applications.vgg16 as vgg16
+# import innvestigate
+# import innvestigate.analyzer.relevance_based.relevance_analyzer as ranalyzer
+import innvestigate.analyzer as iAnalyzers
+import innvestigate.utils as iutils
+from innvestigate.analyzer import BoundedDeepTaylor, PatternNet
+from innvestigate.analyzer.base import ReverseAnalyzerBase
+from innvestigate.applications.imagenet import vgg16
 
-import matplotlib.pyplot as plt
+import keras
 
 import numpy as np
 
-from ..utils.images import load_image, show_heatmap, show_image
+from test_data_innvestigate.utils.analyzers import ANALYZERS
+from test_data_innvestigate.utils.images import load_image
+
 
 ROOT_DIR = os.path.abspath(os.curdir)
-LRP_ANALYZERS = [
-    "LRPZ",
-    "LRPZIgnoreBias",
-    "LRPEpsilon",
-    "LRPEpsilonIgnoreBias",
-    "LRPWSquare",
-    "LRPFlat",
-    "LRPAlpha2Beta1",
-    "LRPAlpha2Beta1IgnoreBias",
-    "LRPAlpha1Beta0",
-    "LRPAlpha1Beta0IgnoreBias",
-    "LRPZPlus",
-    "LRPZPlusFast",
-    "LRPSequentialPresetA",
-    "LRPSequentialPresetB",
-    "LRPSequentialPresetAFlat",
-    "LRPSequentialPresetBFlat",
-    "LRPSequentialPresetBFlatUntilIdx",
-]
+IMG_NAME = "ILSVRC2012_val_00011670.JPEG"
 
 
 def generate():
@@ -46,51 +33,74 @@ def generate():
             "src",
             "test_data_innvestigate",
             "assets",
-            "ILSVRC2012_val_00011670.JPEG",
+            IMG_NAME,
         ),
         size=224,
     )
 
-    # Get model
-    model, preprocess = vgg16.VGG16(), vgg16.preprocess_input
+    # Get model with patterns and preprocessing function
+    net = vgg16(load_weights=True, load_patterns="relu")
+    model = keras.models.Model(inputs=net["in"], output=net["sm_out"])
+    model.compile(optimizer="adam", loss="categorical_crossentropy")
+
+    patterns = net["patterns"]
+    preprocess = net["preprocess_f"]
+    input_range = net["input_range"]
+
     # Strip softmax layer
-    model = innvestigate.utils.model_wo_softmax(model)
+    model = iutils.keras.graph.model_wo_softmax(model)
 
-    # Create analyzer
-
-    # Add batch axis and preprocess
+    # Add batch axis and preprocess input
     x = preprocess(image[None])
 
-    # Write to hdf5 file
-    data_path = os.path.join(ROOT_DIR, "data", "models", "vgg16.hdf5")
-    with h5py.File(data_path, "w") as f:
-        f.create_dataset("input", data=x)
-        f.attrs["model_name"] = "vgg16"
+    for analyzer_name in ANALYZERS:
+        # Write to hdf5 file
+        data_path = os.path.join(ROOT_DIR, "data", "vgg16", analyzer_name + ".hdf5")
+        with h5py.File(data_path, "w") as f:
 
-        rels = f.create_group("layerwise_relevances")
+            f.create_dataset("input", data=x)
+            f.attrs["analyzer_name"] = analyzer_name
+            f.attrs["model_name"] = "vgg16"
+            f.attrs["input_name"] = IMG_NAME
 
-        # Run all analyzers
-        for analyzer_name in LRP_ANALYZERS:
-            # Get analyzer class
-            Analyzer = getattr(ranalyzer, analyzer_name)
+            # Get analyzer class & construct analyzer
+            Analyzer = getattr(iAnalyzers, analyzer_name)
 
-            # Construct analyzer
-            analyzer = Analyzer(model, reverse_keep_tensors=True)
+            if issubclass(Analyzer, PatternNet):
+                analyzer = Analyzer(model, patterns=patterns)
+            elif issubclass(Analyzer, BoundedDeepTaylor):
+                analyzer = Analyzer(model, low=input_range[0], high=input_range[1])
+            else:
+                analyzer = Analyzer(model)
+
             print("\t... using {}: {}".format(analyzer_name, analyzer))
 
-            # Apply analyzer w.r.t. maximum activated output-neuron
-            a = analyzer.analyze(x)
+            # Im method reverses model, keep track of tensors on the backward-pass
+            if issubclass(Analyzer, ReverseAnalyzerBase):
+                print("\t\t keeping track of backwards-pass")
+                analyzer._reverse_keep_tensors = True
 
-            # Obtain layerwise tensors
-            relevances = analyzer._reversed_tensors
-            # unzip reverse tensors to strip indices
-            indices, relevances = zip(*relevances)
+                # Apply analyzer w.r.t. maximum activated output-neuron
+                a = analyzer.analyze(x)
+                f.create_dataset("attribution", data=a)
 
-            assert np.allclose(
-                relevances[1], a
-            ), "_reversed_tensors output differs from final attribution"
+                # Obtain layerwise tensors
+                relevances = analyzer._reversed_tensors
+                # unzip reverse tensors to strip indices
+                indices, relevances = zip(*relevances)
 
-            # Save relevances for this analyzer
-            ana = rels.create_group(analyzer_name)
-            for idx, rel in zip(indices, relevances):
-                ana.create_dataset(str(idx[0]), data=rel)
+                assert np.allclose(
+                    relevances[1], a
+                ), "_reversed_tensors output differs from final attribution"
+
+                # Save relevances
+                f_rel = f.create_group("layerwise_relevances")
+                for idx, rel in zip(indices, relevances):
+                    f_rel.create_dataset(str(idx[0]), data=rel)
+            else:
+                a = analyzer.analyze(x)
+                f.create_dataset("attribution", data=a)
+
+
+if __name__ == "__main__":
+    generate()
