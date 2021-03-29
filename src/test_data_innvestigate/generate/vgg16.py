@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import h5py
 
@@ -25,6 +26,9 @@ IMG_NAME = "ILSVRC2012_val_00011670.JPEG"
 def generate():
     """Load an image and run it through VGG16, applying LRP."""
     print("Generating data on VGG16...")
+
+    # Create data folder
+    Path(os.path.join(ROOT_DIR, "data", "vgg16")).mkdir(parents=True, exist_ok=True)
 
     # Load image
     image = load_image(

@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import h5py
 
@@ -59,6 +60,9 @@ def get_single_layer_model(layer):
 def run_rule(layer, layer_name: str, x: np.ndarray):
     print("Generating data on layer {}".format(layer_name))
     K.clear_session()
+
+    # Create data folder
+    Path(os.path.join(ROOT_DIR, "data", "layer")).mkdir(parents=True, exist_ok=True)
 
     # Get model
     model, weights = get_single_layer_model(layer)
