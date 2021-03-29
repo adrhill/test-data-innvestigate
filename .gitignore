@@ -1,3 +1,7 @@
+# Generated data 
+data/
+*.hdf5
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -113,6 +117,12 @@ venv.bak/
 # Spyder project settings
 .spyderproject
 .spyproject
+
+# VSCode settings
+.vscode
+
+# macOS files
+*.DS_Store
 
 # Rope project settings
 .ropeproject
