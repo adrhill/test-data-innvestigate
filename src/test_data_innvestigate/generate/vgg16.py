@@ -3,8 +3,6 @@ from pathlib import Path
 
 import h5py
 
-# import innvestigate
-# import innvestigate.analyzer.relevance_based.relevance_analyzer as ranalyzer
 import innvestigate.analyzer as iAnalyzers
 import innvestigate.utils as iutils
 from innvestigate.analyzer import BoundedDeepTaylor, PatternNet
@@ -32,13 +30,7 @@ def generate():
 
     # Load image
     image = load_image(
-        os.path.join(
-            ROOT_DIR,
-            "src",
-            "test_data_innvestigate",
-            "assets",
-            IMG_NAME,
-        ),
+        os.path.join(ROOT_DIR, "src", "test_data_innvestigate", "assets", IMG_NAME),
         size=224,
     )
 

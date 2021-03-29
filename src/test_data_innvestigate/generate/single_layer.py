@@ -3,20 +3,12 @@ from pathlib import Path
 
 import h5py
 
-import innvestigate
 import innvestigate.analyzer.relevance_based.relevance_rule as rrule
-import innvestigate.utils.keras.checks as iutils
-from innvestigate.analyzer.relevance_based.relevance_analyzer import LRP
 
 import keras
 import keras.backend as K
 
-
-import matplotlib.pyplot as plt
-
 import numpy as np
-
-from ..utils.images import show_heatmap, show_image
 
 ROOT_DIR = os.path.abspath(os.curdir)
 LRP_RULES = [
@@ -88,8 +80,8 @@ def run_rule(layer, layer_name: str, x: np.ndarray):
 
         # Apply all rules on ys and uniform output
         for rule_name in LRP_RULES:
-            # state and reverse_state are required to construct and apply LRP-rules respectively
-            # TODO: check if these can be left to `None`
+            # state and reverse_state are required to
+            # construct and apply LRP-rules respectively
             state = None
             reverse_state = None
 
@@ -119,7 +111,7 @@ def generate():
 
     # Create layers that are evaluated
     kernel_size = (3, 3)
-    pool_size = (2, 2)
+    # pool_size = (2, 2)
 
     layers_2D = {
         "Dense": keras.layers.Dense(5, input_shape=INPUT_SHAPE),
@@ -146,3 +138,7 @@ def generate():
 
     for layer_name, layer in layers_2D.items():
         run_rule(layer, layer_name, xs)
+
+
+if __name__ == "__main__":
+    generate()
