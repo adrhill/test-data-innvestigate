@@ -84,7 +84,7 @@ def run_rule(layer, layer_name: str, x: np.ndarray):
         f.attrs["layer_name"] = layer_name
         f.create_dataset("input", data=x)
         f.create_dataset("output", data=y)
-        rels = f.create_group("relevances")
+        attribs = f.create_group("attributions")
 
         # Apply all rules on ys and uniform output
         for rule_name in LRP_RULES:
@@ -99,7 +99,7 @@ def run_rule(layer, layer_name: str, x: np.ndarray):
             print("\t... using {}: {}".format(rule_name, rule))
 
             # Get rule matching name from iNNvestigate relevance_rules
-            r = rels.create_group(rule_name)
+            r = attribs.create_group(rule_name)
 
             # Calculate relevances for output Rs=ys of layers
             rel_out = rule.apply([X], [Y], [Y], reverse_state)
