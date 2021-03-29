@@ -1,29 +1,52 @@
 # test-data-innvestigate
-The aim of this repo is to provide test data for future LRP implementations. For this purpose, the [iNNvestigate library](https://github.com/albermax/innvestigate) release `1.0.9` is used as a "ground truth implementation".
-
-## Usage
-The generated data can be found in `/data` and is split in two folders:
-* `data/unit-input`: relevances of randomly generated layers for unit-inputs
-* `data/models`: sample inputs, activations and relevances for common models, e.g.:
-    * VGG16
+This repo provides test data for development of the [iNNvestigate library](https://github.com/albermax/innvestigate) and future LRP implementations. [iNNvestigate release `1.0.9`](https://github.com/albermax/innvestigate/commit/b1084b2b5c59434060c78bb163b9bf006f5bbeb8) is used to generate the data.
 
 
-**New LRP implementations should match the test datasets within a pixel-wise tolerance of `1e-5`!**
 
 ## Installation 
-**This package doesn't need to be installed, as the generated data are already part of the repo.**
-
-However, to allow reproducible generation of the data, you can install the package with [Poetry](https://python-poetry.org/). Make sure you have a local installation of Python 3.6 (e.g. with pyenv) and run:
+To ensure reproducible generation of the data, install this repo with [Poetry](https://python-poetry.org/). Make sure you have a local installation of Python 3.6 and run:
 ```bash
 poetry install 
+```
+
+## Usage
+Generate data by running:
+```bash
 poetry run test-data-innvestigate
 ```
 
-### Why these specific package versions?
-The versions are set according to the [iNNvestigate installation instructions](https://github.com/albermax/innvestigate#installation) for [version `1.0.9`](https://github.com/albermax/innvestigate/commit/b1084b2b5c59434060c78bb163b9bf006f5bbeb8), which is tested using:
-* Python `3.6`
-* TensorFlow `1.12`
-* CUDA `9.x`
+The generated data can then be found in the created `data` directory and is split in two folders:
+* `data/vgg16`: sample input, layer-wise relevances and attributions for most analyzers and presets implemented in iNNvestigate on VGG16
+* `data/layer`: **⚠️WIP⚠️** attributions from randomly generated layers
 
-Additionally:
-* using NumPy `1.16` to avoid [warnings with Tensorflow `1.12`](https://github.com/tensorflow/tensorflow/issues/31249) 
+All data is saved in [HDF5 format](https://portal.hdfgroup.org/display/knowledge/What+is+HDF5). To use this data in Python, refer to the [`h5py` docs](https://docs.h5py.org/en/latest/index.html). 
+<!-- **New LRP implementations should match the test datasets within a pixel-wise tolerance of `1e-5`!** -->
+
+## File structure
+
+### `data/vgg16`
+In case the analyzer used to generate the data is of iNNvestigate's type `ReverseAnalyzerBase`, all intermediate Tensors are saved by their Node ID: 
+```
+├── input
+├── attribution
+└── layerwise_relevances/
+    └── [NODE ID]
+```
+**Additional attributes / metadata:**
+* `analyzer_name`: name of the iNNvestigate analyzer used to generate the file
+* `model_name`: name of the model, in this case `vgg16`
+* `input_name`: name of the input image used to generate the data
+
+### `data/layer` 
+**⚠️ WIP ⚠️**
+All matching relevance rules are run on the layer. For each rule, the dataset  contains the attributions calculated from the actual output and from uniform output:
+```
+├── input
+├── output
+└── attributions/
+    └── [RRule]
+        ├── output
+        └── uniform
+```
+**Additional attributes / metadata:**
+* `layer_name`: name of the layer used to generate the data.
