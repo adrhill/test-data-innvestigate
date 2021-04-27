@@ -1,3 +1,6 @@
+"""
+Run an analysis of one picture on VGG16 through all analyzers.
+"""
 import os
 from pathlib import Path
 
@@ -5,13 +8,11 @@ import h5py
 import keras
 import numpy as np
 
-import innvestigate.analyzer as iAnalyzers
 import innvestigate.utils.keras.graph as igraph
-from innvestigate.analyzer import BoundedDeepTaylor
-from innvestigate.analyzer import PatternNet
 from innvestigate.analyzer.base import ReverseAnalyzerBase
 from innvestigate.applications.imagenet import vgg16
 from test_data_innvestigate.utils.analyzers import ANALYZERS
+from test_data_innvestigate.utils.analyzers import get_analyzer_from_name
 from test_data_innvestigate.utils.images import load_image
 
 ROOT_DIR = os.path.abspath(os.curdir)
@@ -47,6 +48,8 @@ def generate():
     x = preprocess(image[None])
 
     for analyzer_name in ANALYZERS:
+        print("\t... using {}".format(analyzer_name))
+
         # Write to hdf5 file
         data_path = os.path.join(ROOT_DIR, "data", "vgg16", analyzer_name + ".hdf5")
         with h5py.File(data_path, "w") as f:
@@ -57,19 +60,12 @@ def generate():
             f.attrs["input_name"] = IMG_NAME
 
             # Get analyzer class & construct analyzer
-            Analyzer = getattr(iAnalyzers, analyzer_name)
-
-            if issubclass(Analyzer, PatternNet):
-                analyzer = Analyzer(model, patterns=patterns)
-            elif issubclass(Analyzer, BoundedDeepTaylor):
-                analyzer = Analyzer(model, low=input_range[0], high=input_range[1])
-            else:
-                analyzer = Analyzer(model)
-
-            print("\t... using {}: {}".format(analyzer_name, analyzer))
+            analyzer = get_analyzer_from_name(
+                analyzer_name, model, patterns, input_range
+            )
 
             # Im method reverses model, keep track of tensors on the backward-pass
-            if issubclass(Analyzer, ReverseAnalyzerBase):
+            if isinstance(analyzer, ReverseAnalyzerBase):
                 print("\t\t keeping track of backwards-pass")
                 analyzer._reverse_keep_tensors = True
 
