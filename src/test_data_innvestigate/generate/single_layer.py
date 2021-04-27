@@ -2,13 +2,14 @@ import os
 from pathlib import Path
 
 import h5py
-
-import innvestigate.analyzer.relevance_based.relevance_rule as rrule
-
 import keras
 import keras.backend as K
-
 import numpy as np
+from innvestigate.analyzer import BoundedDeepTaylor
+from innvestigate.analyzer import PatternNet
+from innvestigate.analyzer.base import ReverseAnalyzerBase
+
+from test_data_innvestigate.utils.analyzers import ANALYZERS
 
 ROOT_DIR = os.path.abspath(os.curdir)
 LRP_RULES = [

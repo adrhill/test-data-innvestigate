@@ -1,11 +1,9 @@
 import os
 
+import h5py
 import pytest
 
-import h5py
-
 from test_data_innvestigate.generate import vgg16
-
 
 # Load data
 ROOT_DIR = os.path.abspath(os.curdir)

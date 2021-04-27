@@ -2,20 +2,17 @@ import os
 from pathlib import Path
 
 import h5py
-
-import innvestigate.analyzer as iAnalyzers
-import innvestigate.utils as iutils
-from innvestigate.analyzer import BoundedDeepTaylor, PatternNet
-from innvestigate.analyzer.base import ReverseAnalyzerBase
-from innvestigate.applications.imagenet import vgg16
-
 import keras
-
 import numpy as np
 
+import innvestigate.analyzer as iAnalyzers
+import innvestigate.utils.keras.graph as igraph
+from innvestigate.analyzer import BoundedDeepTaylor
+from innvestigate.analyzer import PatternNet
+from innvestigate.analyzer.base import ReverseAnalyzerBase
+from innvestigate.applications.imagenet import vgg16
 from test_data_innvestigate.utils.analyzers import ANALYZERS
 from test_data_innvestigate.utils.images import load_image
-
 
 ROOT_DIR = os.path.abspath(os.curdir)
 IMG_NAME = "ILSVRC2012_val_00011670.JPEG"
@@ -44,7 +41,7 @@ def generate():
     input_range = net["input_range"]
 
     # Strip softmax layer
-    model = iutils.keras.graph.model_wo_softmax(model)
+    model = igraph.model_wo_softmax(model)
 
     # Add batch axis and preprocess input
     x = preprocess(image[None])
