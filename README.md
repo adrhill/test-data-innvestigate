@@ -38,15 +38,13 @@ In case the analyzer used to generate the data is of iNNvestigate's type `Revers
 * `input_name`: name of the input image used to generate the data
 
 ### `data/layer` 
-**⚠️ WIP ⚠️**
-All matching relevance rules are run on the layer. For each rule, the dataset  contains the attributions calculated from the actual output and from uniform output:
+For each analyzer, the dataset  contains the attributions calculated for all layer types:
 ```
 ├── input
-├── output
-└── attributions/
-    └── [RRule]
-        ├── output
-        └── uniform
+└── [Layer name]
+    ├── weights
+    ├── output
+    └── attribution
 ```
 **Additional attributes / metadata:**
-* `layer_name`: name of the layer used to generate the data.
+* `analyzer_name`: name of the iNNvestigate analyzer used to generate the file
