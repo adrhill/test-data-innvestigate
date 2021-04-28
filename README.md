@@ -17,7 +17,7 @@ poetry run test-data-innvestigate
 
 The generated data can then be found in the created `data` directory and is split in two folders:
 * `data/vgg16`: sample input, layer-wise relevances and attributions for most analyzers and presets implemented in iNNvestigate on VGG16
-* `data/layer`: **⚠️WIP⚠️** attributions from randomly generated layers
+* `data/layer`: attributions from randomly generated layers
 
 All data is saved in [HDF5 format](https://portal.hdfgroup.org/display/knowledge/What+is+HDF5). To use this data in Python, refer to the [`h5py` docs](https://docs.h5py.org/en/latest/index.html). 
 <!-- **New LRP implementations should match the test datasets within a pixel-wise tolerance of `1e-5`!** -->
