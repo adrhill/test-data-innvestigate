@@ -55,8 +55,10 @@ ANALYZERS = (
 
 
 def get_analyzer_from_name(analyzer_name, model, patterns, input_range):
-    """Similar to `create_analyzer` from iNNvestigate, but applies patterns and input_range."""
-    Analyzer = getattr(iAnalyzers, analyzer_name)
+    """Similar to `create_analyzer` from iNNvestigate,
+    but applies patterns and `input_range`.
+    """
+    Analyzer = getattr(iAnalyzers, analyzer_name)  # analyzer class
 
     if issubclass(Analyzer, PatternNet):
         analyzer = Analyzer(model, patterns=patterns)

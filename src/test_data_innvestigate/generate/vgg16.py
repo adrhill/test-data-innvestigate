@@ -20,7 +20,7 @@ IMG_NAME = "ILSVRC2012_val_00011670.JPEG"
 
 
 def generate():
-    """Load an image and run it through VGG16, applying LRP."""
+    """Load an image and run it through VGG16, applying all iNNvestigate analyzers."""
     print("Generating data on VGG16...")
 
     # Create data folder
