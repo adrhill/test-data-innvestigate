@@ -64,31 +64,8 @@ def generate():
                 analyzer_name, model, patterns, input_range
             )
 
-            # Im method reverses model, keep track of tensors on the backward-pass
-            if isinstance(analyzer, ReverseAnalyzerBase):
-                print("\t\t keeping track of backwards-pass")
-                analyzer._reverse_keep_tensors = True
-
-                # Apply analyzer w.r.t. maximum activated output-neuron
-                a = analyzer.analyze(x)
-                f.create_dataset("attribution", data=a)
-
-                # Obtain layerwise tensors
-                relevances = analyzer._reversed_tensors
-                # unzip reverse tensors to strip indices
-                indices, relevances = zip(*relevances)
-
-                assert np.allclose(
-                    relevances[1], a
-                ), "_reversed_tensors output differs from final attribution"
-
-                # Save relevances
-                f_rel = f.create_group("layerwise_relevances")
-                for idx, rel in zip(indices, relevances):
-                    f_rel.create_dataset(str(idx[0]), data=rel)
-            else:
-                a = analyzer.analyze(x)
-                f.create_dataset("attribution", data=a)
+            a = analyzer.analyze(x)
+            f.create_dataset("attribution", data=a)
 
 
 if __name__ == "__main__":
