@@ -9,8 +9,7 @@ import h5py
 import keras
 import numpy as np
 
-from test_data_innvestigate.utils.analyzers import get_analyzer_from_name
-from test_data_innvestigate.utils.analyzers import LRP_ANALYZERS
+from test_data_innvestigate.utils.analyzers import METHODS
 
 ROOT_DIR = os.path.abspath(os.curdir)
 
@@ -47,7 +46,7 @@ def get_single_layer_model(layer):
     weights = layer.get_weights()
     model = keras.Sequential()
     model.add(layer)
-    # model.summary()
+    model.add(keras.layers.Flatten())
 
     return model, weights
 
@@ -60,8 +59,9 @@ def generate():
     # Create data folder
     Path(os.path.join(ROOT_DIR, "data", "layer")).mkdir(parents=True, exist_ok=True)
 
-    for analyzer_name in LRP_ANALYZERS:
+    for analyzer_name, m in METHODS.items():
         print("\t... using {}".format(analyzer_name))
+        method, kwargs = m
 
         # Write to hdf5 file
         data_path = os.path.join(ROOT_DIR, "data", "layer", analyzer_name + ".hdf5")
@@ -74,7 +74,7 @@ def generate():
                 # Get model
                 model, weights = get_single_layer_model(layer)
                 # Analyze model
-                analyzer = get_analyzer_from_name(analyzer_name, model, None, None)
+                analyzer = method(model, **kwargs)
                 a = analyzer.analyze(x)
                 y = model.predict(x)
 

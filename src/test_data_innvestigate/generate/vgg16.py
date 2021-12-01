@@ -6,13 +6,10 @@ from pathlib import Path
 
 import h5py
 import keras
-import numpy as np
 
 import innvestigate.utils.keras.graph as igraph
-from innvestigate.analyzer.base import ReverseAnalyzerBase
 from innvestigate.applications.imagenet import vgg16
-from test_data_innvestigate.utils.analyzers import ANALYZERS
-from test_data_innvestigate.utils.analyzers import get_analyzer_from_name
+from test_data_innvestigate.utils.analyzers import METHODS
 from test_data_innvestigate.utils.images import load_image
 
 ROOT_DIR = os.path.abspath(os.curdir)
@@ -47,8 +44,9 @@ def generate():
     # Add batch axis and preprocess input
     x = preprocess(image[None])
 
-    for analyzer_name in ANALYZERS:
+    for analyzer_name, m in METHODS.items():
         print("\t... using {}".format(analyzer_name))
+        method, kwargs = m
 
         # Write to hdf5 file
         data_path = os.path.join(ROOT_DIR, "data", "vgg16", analyzer_name + ".hdf5")
@@ -60,10 +58,7 @@ def generate():
             f.attrs["input_name"] = IMG_NAME
 
             # Get analyzer class & construct analyzer
-            analyzer = get_analyzer_from_name(
-                analyzer_name, model, patterns, input_range
-            )
-
+            analyzer = method(model, **kwargs)
             a = analyzer.analyze(x)
             f.create_dataset("attribution", data=a)
 
