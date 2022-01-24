@@ -41,9 +41,7 @@ def debug_failed_all_close(val, ref, val_name, layer_name, analyzer_name):
         )
 
 
-@pytest.mark.parametrize(
-    "analyzer_name, val", METHODS.items(), ids=list(METHODS.keys())
-)
+@pytest.mark.parametrize("analyzer_name, val", METHODS.items(), ids=list(METHODS.keys()))
 def test_reference_layer(val, analyzer_name):
     method, kwargs = val
     data_path = os.path.join(
@@ -56,11 +54,6 @@ def test_reference_layer(val, analyzer_name):
     with h5py.File(data_path, "r") as f:
         assert f.attrs["analyzer_name"] == analyzer_name  # sanity check: correct file
         x = f["input"][:]
-
-        keras.backend.clear_session()
-        session = tf.Session(graph=tf.get_default_graph())
-        keras.backend.set_session(session)
-        tf.set_random_seed(123)
 
         layers_2d = {
             "Dense": keras.layers.Dense(5, input_shape=input_shape),
@@ -80,6 +73,8 @@ def test_reference_layer(val, analyzer_name):
         }
 
         for layer_name, layer in layers_2d.items():
+            keras.backend.clear_session()
+
             f_layer = f[layer_name]
             assert f_layer.attrs["layer_name"] == layer_name
             weights = [w[:] for w in f_layer["weights"].values()]

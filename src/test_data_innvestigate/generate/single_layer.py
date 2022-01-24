@@ -19,7 +19,7 @@ ROOT_DIR = os.path.abspath(os.curdir)
 # Using the default `data_format="channels_last"`:
 #    (batch_size, rows, cols, channels)
 INPUT_SHAPE = (10, 10, 3)
-BATCH_SIZE = 1
+BATCH_SIZE = 8
 
 # Layers used in unit tests
 KERNEL_SIZE = (3, 3)
