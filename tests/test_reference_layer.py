@@ -11,8 +11,12 @@ import tensorflow as tf
 
 from test_data_innvestigate.utils.analyzers import METHODS
 
-rtol = 1e-3
 atol = 1e-5
+rtol = 1e-3
+
+# Loosen tolerances for SmoothGrad because of random Gaussian noise
+atol_smoothgrad = 0.15
+rtol_smoothgrad = 0.25
 
 # Sizes used for data generation
 input_shape = (10, 10, 3)
@@ -21,7 +25,9 @@ kernel_size = (3, 3)
 pool_size = (2, 2)
 
 
-def debug_failed_all_close(val, ref, val_name, layer_name, analyzer_name):
+def debug_failed_all_close(
+    val, ref, val_name, layer_name, analyzer_name, rtol=rtol, atol=atol
+):
     diff = np.absolute(val - ref)
     # Function evaluated by np.allclose, see "Notes":
     # https://numpy.org/doc/stable/reference/generated/numpy.allclose.html
@@ -41,7 +47,9 @@ def debug_failed_all_close(val, ref, val_name, layer_name, analyzer_name):
         )
 
 
-@pytest.mark.parametrize("analyzer_name, val", METHODS.items(), ids=list(METHODS.keys()))
+@pytest.mark.parametrize(
+    "analyzer_name, val", METHODS.items(), ids=list(METHODS.keys())
+)
 def test_reference_layer(val, analyzer_name):
     method, kwargs = val
     data_path = os.path.join(
@@ -103,7 +111,17 @@ def test_reference_layer(val, analyzer_name):
 
             # Test attribution
             a_ref = f_layer["attribution"][:]
-            attributions_match = np.allclose(a, a_ref, rtol=rtol, atol=atol)
+
+            if analyzer_name == "SmoothGrad":
+                _atol = atol_smoothgrad
+                _rtol = rtol_smoothgrad
+            else:
+                _atol = atol
+                _rtol = rtol
+
+            attributions_match = np.allclose(a, a_ref, rtol=_rtol, atol=_atol)
             if not attributions_match:
-                debug_failed_all_close(a, a_ref, "a", layer_name, analyzer_name)
+                debug_failed_all_close(
+                    a, a_ref, "a", layer_name, analyzer_name, rtol=_rtol, atol=_atol
+                )
             assert attributions_match

@@ -37,6 +37,7 @@ METHODS = {
     "Deconvnet": (Deconvnet, {}),
     "GuidedBackprop": (GuidedBackprop, {}),
     "IntegratedGradients": (IntegratedGradients, {}),
+    "SmoothGrad": (SmoothGrad, {}),
     # Relevance based
     "LRPZ": (LRPZ, {}),
     "LRPZ_Flat_input_layer_rule": (LRPZ, {"input_layer_rule": "Flat"}),
