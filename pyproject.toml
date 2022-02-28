@@ -50,6 +50,10 @@ filterwarnings = [
     "ignore::FutureWarning:tensorflow",
     "ignore::DeprecationWarning:tensorflow",
 ]
+markers = [
+    "layer", 
+    "vgg16",
+]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

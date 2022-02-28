@@ -7,7 +7,6 @@ import h5py
 import keras
 import numpy as np
 import pytest
-import tensorflow as tf
 
 from test_data_innvestigate.utils.analyzers import METHODS
 
@@ -47,6 +46,7 @@ def debug_failed_all_close(
         )
 
 
+@pytest.mark.layer
 @pytest.mark.parametrize(
     "analyzer_name, val", METHODS.items(), ids=list(METHODS.keys())
 )
