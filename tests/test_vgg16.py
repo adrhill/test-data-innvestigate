@@ -117,12 +117,13 @@ def test_vgg16(val, analyzer_name):
             indices, relevances = zip(*relevances)
 
             for i, r in zip(indices, relevances):
-                r_ref = f["layerwise_relevances"][str(i[0])][:]
+                idx = str(i[0])
+                r_ref = f["layerwise_relevances"][idx][:]
                 rels_match = np.allclose(
                     r, r_ref, rtol=_rtol, atol=_atol
                 )
-                if not attributions_match:
+                if not rels_match:
                     debug_failed_all_close(
-                        r, r_ref, "a", layer_name, analyzer_name, rtol=_rtol, atol=_atol
+                        r, r_ref, f"r_{idx}", layer_name, analyzer_name, rtol=_rtol, atol=_atol
                     )
                 assert rels_match
