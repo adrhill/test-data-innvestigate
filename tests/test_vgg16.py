@@ -10,6 +10,7 @@ import pytest
 import tensorflow as tf
 
 import innvestigate.utils.keras.graph as igraph
+from innvestigate.analyzer import LRP
 from innvestigate.applications.imagenet import vgg16
 from test_data_innvestigate.utils.analyzers import METHODS
 
@@ -86,6 +87,9 @@ def test_vgg16(val, analyzer_name):
 
         # Analyze model
         analyzer = method(model, **kwargs)
+        if isinstance(analyzer, LRP):
+            analyzer._reverse_keep_tensors = True
+
         a = analyzer.analyze(x)
         assert np.shape(a) == np.shape(x)
 
@@ -105,3 +109,20 @@ def test_vgg16(val, analyzer_name):
                 a, a_ref, "a", layer_name, analyzer_name, rtol=_rtol, atol=_atol
             )
         assert attributions_match
+
+        # Test reverse tensors
+        if isinstance(analyzer, LRP):
+            relevances = analyzer._reversed_tensors
+            # unzip reverse tensors to strip indices
+            indices, relevances = zip(*relevances)
+
+            for i, r in zip(indices, relevances):
+                r_ref = f["layerwise_relevances"][str(i[0])][:]
+                rels_match = np.allclose(
+                    r, r_ref, rtol=_rtol, atol=_atol
+                )
+                if not attributions_match:
+                    debug_failed_all_close(
+                        r, r_ref, "a", layer_name, analyzer_name, rtol=_rtol, atol=_atol
+                    )
+                assert rels_match

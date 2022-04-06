@@ -10,6 +10,7 @@ import numpy as np
 import tensorflow as tf
 
 import innvestigate.utils.keras.graph as igraph
+from innvestigate.analyzer import LRP
 from innvestigate.applications.imagenet import vgg16
 from test_data_innvestigate.utils.analyzers import METHODS
 
@@ -18,7 +19,7 @@ ROOT_DIR = os.path.abspath(os.curdir)
 IMG_NAME = "ILSVRC2012_val_00011670.JPEG"
 
 INPUT_SHAPE = (224, 224, 3)
-BATCH_SIZE = 1
+BATCH_SIZE = 2
 
 
 def generate():
@@ -57,7 +58,29 @@ def generate():
 
             # Get analyzer class & construct analyzer
             analyzer = method(model, **kwargs)
-            a = analyzer.analyze(x)
+
+            # Im method reverses model, keep track of tensors on the backward-pass
+            if isinstance(analyzer, LRP):
+                analyzer._reverse_keep_tensors = True
+
+                # Apply analyzer w.r.t. maximum activated output-neuron
+                a = analyzer.analyze(x)
+                # Obtain layerwise tensors
+                relevances = analyzer._reversed_tensors
+                # unzip reverse tensors to strip indices
+                indices, relevances = zip(*relevances)
+
+                assert np.allclose(
+                    relevances[1], a
+                ), "_reversed_tensors output differs from final attribution"
+
+                # Save relevances
+                f_rel = f.create_group("layerwise_relevances")
+                for idx, rel in zip(indices, relevances):
+                    f_rel.create_dataset(str(idx[0]), data=rel)
+            else:
+                a = analyzer.analyze(x)
+
             f.create_dataset("attribution", data=a)
 
 
